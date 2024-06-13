@@ -45,3 +45,43 @@ func generateBlock(oldBlock Block, BPM int) (Block, error) {
 
 	return newBlock, nil
 }
+
+func isBlockValid(oldBlock, newBlock Block) bool {
+	if oldBlock.Index +1 != newBlock.Index {
+		return false
+	}
+	if oldBlock.Hash != newBlock.PrevHash {
+		return false
+	}
+	if calculateHash(newBlock) != newBlock.Hash {
+		return false
+	}
+
+	return true
+}
+
+func replaceChain(newBlocks []Block) {
+	if len(newBlocks) > len(Blockchain) {
+		Blockchain = newBlocks
+	}
+}
+
+func run() error {
+	var mux := makeMuxRouter()
+	var httpAddr = os.Getenv("ADDR")
+	log.Println("Listening on PORT: ", os.Getenv("ADDR"))
+	s := &http.Server{
+		Addr: ":" + httpAddr,
+		Handler:        mux,
+		ReadTimeout:    10 * time.Second,
+		WriteTimeout:   10 * time.Second,
+		MaxHeaderBytes: 1 << 20,
+	}
+
+	if err := s.ListenAndServe(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func makeMuxRouter() http.Handler {}
