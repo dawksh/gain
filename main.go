@@ -84,4 +84,26 @@ func run() error {
 	return nil
 }
 
-func makeMuxRouter() http.Handler {}
+func makeMuxRouter() http.Handler {
+	muxRouter := mux.NewRouter()
+	muxRouter.HandleFunc('/', handleGetBlockchain).Methods("GET")
+	muxRouter.HandleFunc('/', handleWriteBlock).Methods("POST")
+	return muxRouter
+}
+
+func handleGetBlockchain(w http.ResponseWriter, r *http.Request) {
+	bytes, err := json.MarshalIndent(Blockchain, "", "	")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	io.WriteString(w, string(bytes))
+}
+
+type Message struct {
+	BPM int
+}
+
+func handleWriteBlock(w http.ResponseWriter, r *http.Request) {
+	
+}
